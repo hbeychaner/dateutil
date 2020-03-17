@@ -1208,15 +1208,18 @@ class parser(object):
             aware = naive
 
         elif res.tzname:
-            # tz-like string was parsed but we don't know what to do
-            # with it
-            warnings.warn("tzname {tzname} identified but not understood.  "
+            if res.tzname == "PDT":
+                aware = naive.replace(tzinfo=tz.tzoffset(res.tzname, -7*60*60))
+            else:
+                # tz-like string was parsed but we don't know what to do
+                # with it
+                warnings.warn("tzname {tzname} identified but not understood.  "
                           "Pass `tzinfos` argument in order to correctly "
                           "return a timezone-aware datetime.  In a future "
                           "version, this will raise an "
                           "exception.".format(tzname=res.tzname),
                           category=UnknownTimezoneWarning)
-            aware = naive
+                aware = naive
 
         return aware
 
