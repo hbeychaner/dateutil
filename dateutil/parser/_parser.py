@@ -654,7 +654,7 @@ class parser(object):
         try:
             ret = self._build_naive(res, default)
         except ValueError as e:
-            six.raise_from(ParserError(str(e) + ": %s", timestr), e)
+            six.raise_from(ParserError(e.args[0] + ": %s", timestr), e)
 
         if not ignoretz:
             ret = self._build_tzaware(ret, res, tzinfos)
@@ -1210,6 +1210,8 @@ class parser(object):
         elif res.tzname:
             if res.tzname == "PDT":
                 aware = naive.replace(tzinfo=tz.tzoffset(res.tzname, -7*60*60))
+            if res.tzname == "PST":
+                aware = naive.replace(tzinfo=tz.tzoffset(res.tzname, -8*60*60))
             else:
                 # tz-like string was parsed but we don't know what to do
                 # with it
@@ -1603,9 +1605,8 @@ class ParserError(ValueError):
         except (TypeError, IndexError):
             return super(ParserError, self).__str__()
 
-    def __repr__(self):
-        args = ", ".join("'%s'" % arg for arg in self.args)
-        return "%s(%s)" % (self.__class__.__name__, args)
+        def __repr__(self):
+            return "%s(%s)" % (self.__class__.__name__, str(self))
 
 
 class UnknownTimezoneWarning(RuntimeWarning):
