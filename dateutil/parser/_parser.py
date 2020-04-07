@@ -1208,10 +1208,9 @@ class parser(object):
             aware = naive
 
         elif res.tzname:
-            if res.tzname == "PDT":
-                aware = naive.replace(tzinfo=tz.tzoffset(res.tzname, -7*60*60))
-            if res.tzname == "PST":
-                aware = naive.replace(tzinfo=tz.tzoffset(res.tzname, -8*60*60))
+            tz_dict = {"PDT": -7*60*60, "PST": -8*60*60, "EDT":-4*60*60}
+            if res.tzname in tz_dict.keys():
+                aware = naive.replace(tzinfo=tz.offset(res.tzname, tz_dict[res.tzname]))
             else:
                 # tz-like string was parsed but we don't know what to do
                 # with it
